@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F4B4B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Porraskartoitus">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Luotea Porraskartoitus</title>
+<!--
+  Luotea Porraskartoitus — porraskohteen tilakartoitus kentällä (puhelin / tabletti / kone)
+  Korvaa Porrasmitoituksen paperisen tilakartoituslomakkeen. Useita rakennuksia ja rappuja,
+  mittalaskin kenttiin (esim. 4,2*3,1), luonnos säilyy laitteella, vienti suoraan Porrasmitoitukseen.
+  (260930.1) Build 1.
+  (260930.2) Build 2: PWA (asennus kotinäytölle, toimii ilman verkkoa), verkkotilan ilmaisin.
+-->
+<style>
+:root{--havu:#0F4B4B;--havu-dk:#093838;--asteri:#EBB9FF;--kalkki:#E6DCD2;--kalkki-lt:#F5F0EA;--kalkki-md:#EFE7DD;--luumu:#371E30;--hiili:#1F1F1F;
+--celadon:#96E6AA;--mulberry:#AA4678;--mut:#5A4655;--raja:#D9CFC4;--valk:#FFFFFF}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:16px;color:var(--hiili);background:var(--kalkki-lt);padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+header{background:var(--havu);color:#fff;padding:12px 16px calc(12px) 16px;padding-top:calc(12px + env(safe-area-inset-top));display:flex;align-items:center;gap:10px}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px}
+header .ala{font-size:12px;opacity:.8}
+header .build{margin-left:auto;font-size:11px;opacity:.7;text-align:right}
+main{max-width:860px;margin:0 auto;padding:12px 12px 24px}
+.kortti{background:var(--valk);border:1px solid var(--raja);border-radius:14px;padding:14px;margin-bottom:12px}
+.kortti>h2{font-size:16px;margin:0 0 10px;color:var(--havu)}
+.kentat{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:520px){.kentat{grid-template-columns:1fr}}
+label.k{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mut);min-width:0}
+input,select,textarea{font:inherit;font-size:16px;border:1px solid var(--raja);border-radius:10px;padding:10px 11px;background:#fff;color:var(--hiili);width:100%;min-height:44px}
+textarea{min-height:64px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--celadon);outline-offset:1px;border-color:var(--havu)}
+input.num{text-align:right;font-variant-numeric:tabular-nums}
+input.virhe{border-color:var(--mulberry);background:#FBEFF4}
+details.rak{background:var(--valk);border:1px solid var(--raja);border-radius:14px;margin-bottom:14px;overflow:hidden}
+details.rak>summary{list-style:none;cursor:pointer;padding:14px;background:var(--kalkki-md);display:flex;align-items:center;gap:10px;font-weight:700;color:var(--havu)}
+details.rak>summary::-webkit-details-marker,details.rappu>summary::-webkit-details-marker,details.osio>summary::-webkit-details-marker{display:none}
+details.rak>summary .yht,details.rappu>summary .yht,details.osio>summary .yht{margin-left:auto;font-weight:600;color:var(--luumu);font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.nuoli{transition:transform .15s;display:inline-block;width:14px}
+details[open]>summary .nuoli{transform:rotate(90deg)}
+.rakSisus{padding:12px}
+details.rappu,details.osio{border:1px solid var(--raja);border-radius:12px;margin:10px 0;background:#fff}
+details.rappu>summary,details.osio>summary{list-style:none;cursor:pointer;padding:12px;display:flex;align-items:center;gap:8px;font-weight:650}
+details.rappu[open]>summary,details.osio[open]>summary{border-bottom:1px solid var(--kalkki)}
+.sis{padding:12px}
+.alaots{font-size:13px;font-weight:700;color:var(--havu);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.4px}
+.alaots:first-child{margin-top:0}
+.rivi3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:420px){.rivi3{grid-template-columns:1fr 1fr}}
+.prow{display:grid;grid-template-columns:1fr 18px 88px 44px;gap:8px;align-items:center;margin-bottom:8px}
+.prow .x{text-align:center;color:var(--mut)}
+.srow{border:1px solid var(--kalkki);border-radius:10px;padding:10px;margin-bottom:10px;background:var(--kalkki-lt)}
+.srow .top{display:grid;grid-template-columns:1fr 44px;gap:8px;margin-bottom:8px}
+.trow{display:grid;grid-template-columns:1fr 110px 44px;gap:8px;align-items:center;margin-bottom:8px}
+.tulos{font-size:12px;color:var(--mut);text-align:right;min-height:14px;font-variant-numeric:tabular-nums}
+button{font:inherit;cursor:pointer;border-radius:10px;min-height:44px}
+button.p{background:var(--havu);color:#fff;border:none;padding:10px 16px;font-weight:650}
+button.p:active{background:var(--havu-dk)}
+button.s{background:#fff;color:var(--havu);border:1px solid var(--havu);padding:9px 14px;font-weight:600}
+button.i{background:#fff;border:1px solid var(--raja);color:var(--mulberry);width:44px;padding:0;font-size:18px}
+button.l{background:none;border:1px dashed var(--havu);color:var(--havu);padding:9px 14px;width:100%;font-weight:600}
+.napit{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.napit button{flex:1 1 auto}
+.info{background:#EAF3F1;border-left:4px solid var(--havu);padding:9px 11px;border-radius:8px;font-size:13px;color:#24403F;margin:8px 0}
+.varo{background:#FBEFF4;border-left:4px solid var(--mulberry);padding:8px 11px;border-radius:8px;font-size:13px;margin:6px 0}
+.mut{color:var(--mut);font-size:12px}
+table.yv{width:100%;border-collapse:collapse;font-size:14px}
+table.yv td,table.yv th{padding:7px 6px;border-bottom:1px solid var(--kalkki);text-align:left}
+table.yv td.n,table.yv th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.yv th{font-size:12px;color:var(--mut);font-weight:600}
+.alapalkki{position:fixed;left:0;right:0;bottom:0;background:var(--havu-dk);color:#fff;padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;z-index:20;box-shadow:0 -4px 14px rgba(0,0,0,.18)}
+.alapalkki .lk{flex:1;min-width:0;font-size:13px;line-height:1.35;font-variant-numeric:tabular-nums}
+.alapalkki .lk b{font-size:16px}
+.alapalkki button{background:var(--celadon);color:var(--luumu);border:none;padding:10px 14px;font-weight:700;white-space:nowrap}
+.tallennettu{font-size:11px;opacity:.75}
+dialog{border:none;border-radius:16px;padding:0;max-width:520px;width:calc(100% - 24px)}
+dialog::backdrop{background:rgba(15,30,30,.45)}
+dialog .dsis{padding:16px}
+dialog h3{margin:0 0 10px;color:var(--havu)}
+dialog .napit{flex-direction:column}
+#tuloste{display:none}
+@media print{
+  body{background:#fff;padding:0;font-size:11px}
+  header,main,.alapalkki,dialog{display:none!important}
+  #tuloste{display:block}
+  #tuloste h1{font-size:15px;margin:0 0 4px}
+  #tuloste h2{font-size:13px;margin:12px 0 4px;color:var(--havu);page-break-after:avoid}
+  #tuloste table{width:100%;border-collapse:collapse;margin-bottom:6px;page-break-inside:avoid}
+  #tuloste th,#tuloste td{border:1px solid #999;padding:3px 5px;text-align:left;font-size:10.5px}
+  #tuloste td.n{text-align:right}
+  .rakTulostus{page-break-inside:auto}
+  @page{size:A4;margin:12mm}
+}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Porraskartoitus</h1><div class="ala">Luotea · porraskohteen tilakartoitus</div></div>
+  <div class="build">build 260930.2<div class="tallennettu" id="tallennettu"></div><div class="tallennettu" id="verkko"></div></div>
+</header>
+<main>
+  <section class="kortti">
+    <h2>Kohde</h2>
+    <div class="kentat">
+      <label class="k">Asiakas<input type="text" data-p="asiakas" autocomplete="off"></label>
+      <label class="k">Kohde<input type="text" data-p="kohde" autocomplete="off"></label>
+      <label class="k">Osoite<input type="text" data-p="osoite" autocomplete="street-address"></label>
+      <label class="k">Laatinut<input type="text" data-p="laatija" autocomplete="name"></label>
+      <label class="k">Pvm<input type="date" data-p="pvm"></label>
+    </div>
+    <div class="info">Mittakentät hyväksyvät laskutoimituksen: kirjoita esim. <b>4,2*3,1</b> tai <b>2,1x1,5+3</b>, niin tulos lasketaan. Luonnos tallentuu tälle laitteelle automaattisesti.</div>
+  </section>
+
+  <div id="rakennukset"></div>
+  <button class="l" id="lisaaRak">+ Lisää rakennus</button>
+
+  <section class="kortti" style="margin-top:14px">
+    <h2>Yhteenveto Porrasmitoitukseen</h2>
+    <div id="yhteenveto"></div>
+    <div id="varoitukset"></div>
+    <div class="napit">
+      <button class="p" id="vieMitoitus">⬇ Vie Porrasmitoitukseen</button>
+      <button class="s" id="tulosta">🖨 Tulosta / PDF</button>
+    </div>
+    <div class="napit">
+      <button class="s" id="tallennaJson">💾 Tallenna kartoitus</button>
+      <button class="s" id="avaaJson">📂 Avaa kartoitus</button>
+      <button class="s" id="uusi">🗒 Uusi kartoitus</button>
+    </div>
+    <input type="file" id="avaaInput" accept=".json,application/json" hidden>
+    <p class="mut">Vienti tuottaa tiedoston <b>LuoteaPorras_….json</b>, jonka Porrasmitoitus avaa ⑥-välilehden "Avaa laskelma" -napista. Jokaisesta rakennuksesta tulee oma kohde. Puhelimessa vienti avaa jakovalikon (sähköposti, Teams, OneDrive).</p>
+  </section>
+</main>
+
+<div class="alapalkki">
+  <div class="lk" id="palkki"></div>
+  <button id="palkkiVie">Vie ⬇</button>
+</div>
+
+<dialog id="dlg"><div class="dsis"><h3 id="dlgOts"></h3><div id="dlgTeksti"></div><div class="napit" id="dlgNapit"></div></div></dialog>
+<div id="tuloste"></div>
+
+<script>
+(() => {
+'use strict';
+const BUILD = '260930.2', TYOKALU = 'LuoteaPorraskartoitus', LUONNOS = 'luotea_porraskartoitus_luonnos_v1';
+const TYYPIT = [['kt', 'Kerrostalo'], ['pkt', 'Pienkerrostalo'], ['luhtitalo', 'Luhtitalo'], ['rt', 'Rivitalo']];
+const OSIOT = [
+  ['pesula', 'Pesulat, kuivaushuoneet, mankelit'], ['varasto', 'Ulkoiluväline- ja lastenvaunuvarastot'], ['kellari', 'Kellarikäytävät'],
+  ['irtain', 'Irtaimistovarastokäytävät'], ['kerho', 'Kerhohuoneet'], ['kuntosali', 'Kuntosali']
+];
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (x, d = 1) => (x == null || !isFinite(x)) ? '–' : x.toLocaleString('fi-FI', { minimumFractionDigits: d, maximumFractionDigits: d });
+const uid = () => Math.random().toString(36).slice(2, 9);
+const tanaan = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
+
+// ---------- mittalaskin: numerot, + - * / x × ( ), pilkku desimaalina ----------
+function laske(s) {
+  s = String(s == null ? '' : s).trim(); if (!s) return null;
+  s = s.replace(/\s+/g, '').replace(/,/g, '.').replace(/[x×X]/g, '*').replace(/m2|m²/gi, '');
+  if (!/^[0-9.+\-*/()]+$/.test(s)) return NaN;
+  let i = 0;
+  const luku = () => { const m = s.slice(i).match(/^\d*\.?\d+|^\d+\./); if (!m) throw 0; i += m[0].length; return parseFloat(m[0]); };
+  const tekija = () => { if (s[i] === '(') { i++; const v = summa(); if (s[i] !== ')') throw 0; i++; return v; } if (s[i] === '-') { i++; return -tekija(); } return luku(); };
+  const tulo = () => { let v = tekija(); while (s[i] === '*' || s[i] === '/') { const o = s[i++]; const w = tekija(); v = o === '*' ? v * w : v / w; } return v; };
+  const summa = () => { let v = tulo(); while (s[i] === '+' || s[i] === '-') { const o = s[i++]; const w = tulo(); v = o === '+' ? v + w : v - w; } return v; };
+  try { const v = summa(); return i === s.length && isFinite(v) ? v : NaN; } catch (e) { return NaN; }
+}
+const n = s => { const v = laske(s); return v > 0 ? v : 0; };
+
+// ---------- tila ----------
+const uusiRappu = t => ({ id: uid(), tunnus: t || '', alaAula: '', hissit: '', tuulikaapit: '', portaat: [{ m2: '', krs: '' }], huom: '' });
+const uusiSauna = () => ({ id: uid(), nimi: '', loyly: '', pesu: '', puku: '', wc: '', lampoPv: '', tapa: 'viikko' });
+const uusiRak = i => ({ id: uid(), nimi: i ? 'Rakennus ' + i : 'Rakennus 1', tyyppi: 'kt', raput: [uusiRappu('A')], saunat: [],
+  tilat: Object.fromEntries(OSIOT.map(([k]) => [k, []])), irtTapa: 'imu', muuta: '', huom: '' });
+const uusiTila = () => ({ v: 1, asiakas: '', kohde: '', osoite: '', laatija: '', pvm: tanaan(), rakennukset: [uusiRak(1)] });
+let S = uusiTila();
+try { const l = localStorage.getItem(LUONNOS); if (l) { const d = JSON.parse(l); if (d && d.rakennukset) S = normalisoi(d); } } catch (e) {}
+
+function normalisoi(d) {
+  const t = uusiTila(); ['asiakas', 'kohde', 'osoite', 'laatija', 'pvm'].forEach(k => { if (typeof d[k] === 'string') t[k] = d[k]; });
+  t.rakennukset = (Array.isArray(d.rakennukset) && d.rakennukset.length ? d.rakennukset : [uusiRak(1)]).map((r, i) => {
+    const b = uusiRak(i + 1); Object.assign(b, { id: r.id || uid(), nimi: String(r.nimi ?? b.nimi), tyyppi: TYYPIT.some(x => x[0] === r.tyyppi) ? r.tyyppi : 'kt',
+      irtTapa: r.irtTapa === 'pyy' ? 'pyy' : 'imu', muuta: String(r.muuta || ''), huom: String(r.huom || '') });
+    b.raput = (Array.isArray(r.raput) && r.raput.length ? r.raput : [uusiRappu('A')]).map(p => Object.assign(uusiRappu(), p, { id: p.id || uid(),
+      portaat: Array.isArray(p.portaat) && p.portaat.length ? p.portaat.map(x => ({ m2: String(x.m2 ?? ''), krs: String(x.krs ?? '') })) : [{ m2: '', krs: '' }] }));
+    b.saunat = (r.saunat || []).map(x => Object.assign(uusiSauna(), x, { id: x.id || uid(), tapa: x.tapa === 'tark' ? 'tark' : 'viikko' }));
+    OSIOT.forEach(([k]) => { b.tilat[k] = ((r.tilat && r.tilat[k]) || []).map(x => ({ id: x.id || uid(), kuvaus: String(x.kuvaus || ''), m2: String(x.m2 ?? '') })); });
+    return b;
+  });
+  return t;
+}
+let tallennusAjastin = null;
+function tallennaLuonnos() {
+  clearTimeout(tallennusAjastin);
+  tallennusAjastin = setTimeout(() => { try { localStorage.setItem(LUONNOS, JSON.stringify(S)); $('tallennettu').textContent = 'luonnos tallennettu ' + new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' }); } catch (e) { $('tallennettu').textContent = 'luonnos ei tallennu tähän selaimeen – muista tallentaa kartoitus'; } }, 400);
+}
+
+// ---------- laskenta ----------
+function rappuLuvut(p) {
+  const aula = n(p.alaAula) + n(p.hissit) + n(p.tuulikaapit);
+  const port = p.portaat.reduce((a, x) => a + n(x.m2) * n(x.krs), 0);
+  const krs = p.portaat.reduce((a, x) => a + n(x.krs), 0);
+  return { aula, port, krs };
+}
+const saunaM2 = s => n(s.loyly) + n(s.pesu) + n(s.puku) + n(s.wc);
+function rakLuvut(r) {
+  const R = r.raput.map(rappuLuvut);
+  const aula = R.reduce((a, x) => a + x.aula, 0), port = R.reduce((a, x) => a + x.port, 0), krsSum = R.reduce((a, x) => a + x.krs, 0);
+  const sv = r.saunat.filter(s => s.tapa === 'viikko'), st = r.saunat.filter(s => s.tapa === 'tark');
+  const osio = k => r.tilat[k].reduce((a, x) => a + n(x.m2), 0);
+  const o = Object.fromEntries(OSIOT.map(([k]) => [k, osio(k)]));
+  const sauna = r.saunat.reduce((a, s) => a + saunaM2(s), 0);
+  return { raput: r.raput.length, aula, port, krsSum, sv, st, svM2: sv.reduce((a, s) => a + saunaM2(s), 0), stM2: st.reduce((a, s) => a + saunaM2(s), 0),
+    o, sauna, muut: Object.values(o).reduce((a, x) => a + x, 0), yht: aula + port + sauna + Object.values(o).reduce((a, x) => a + x, 0) };
+}
+// Porrasmitoituksen kohde: raput × kerrokset × m²/krs ja raput × m²/rappu — summat säilyvät täsmälleen
+function mitoitusKohde(r) {
+  const L = rakLuvut(r), raput = L.raput, kerrokset = raput ? Math.max(1, Math.round(L.krsSum / raput)) : 0;
+  const r4 = x => Math.round(x * 10000) / 10000;
+  return {
+    nimi: r.nimi || 'Rakennus', tyyppi: r.tyyppi, rakennukset: 1, raput, kerrokset,
+    m2PerRappu: raput ? r4(L.aula / raput) : 0, m2PerKerros: raput && kerrokset ? r4(L.port / (raput * kerrokset)) : 0,
+    saunaViikko: { kpl: L.sv.length, m2PerSauna: L.sv.length ? r4(L.svM2 / L.sv.length) : 0 },
+    saunaTark: { kpl: L.st.length, m2PerSauna: L.st.length ? r4(L.stM2 / L.st.length) : 0 },
+    pesulat: { pesula: r4(L.o.pesula), kellari: r4(L.o.kellari), irtImu: r.irtTapa === 'imu' ? r4(L.o.irtain) : 0, irtPyy: r.irtTapa === 'pyy' ? r4(L.o.irtain) : 0,
+      kerho: r4(L.o.kerho), kuntosali: r4(L.o.kuntosali), varasto: r4(L.o.varasto) }
+  };
+}
+
+// ---------- render ----------
+const numInput = (path, val, ph) => `<input class="num" inputmode="decimal" data-n="${path}" value="${esc(val)}" placeholder="${ph || 'm²'}" autocomplete="off">`;
+function tulosTeksti(v) { const x = laske(v); return !String(v).trim() ? '' : isNaN(x) ? '⚠ tarkista' : /[+\-*/x×()]/i.test(String(v).replace(/^-/, '')) ? '= ' + fmt(x, 2) + ' m²' : ''; }
+function renderRappu(r, ri, p, pi) {
+  const L = rappuLuvut(p), base = `r.${ri}.raput.${pi}`;
+  return `<details class="rappu" data-id="${p.id}" ${p._auki !== false ? 'open' : ''}>
+    <summary><span class="nuoli">▸</span> Rappu <b>${esc(p.tunnus || '?')}</b><span class="yht" data-yht="rappu:${ri}:${pi}">${fmt(L.aula + L.port)} m²</span></summary>
+    <div class="sis">
+      <label class="k" style="max-width:160px">Rapun tunnus<input type="text" data-s="${base}.tunnus" value="${esc(p.tunnus)}" autocapitalize="characters"></label>
+      <div class="alaots">Porrashuone – pinta-ala m²</div>
+      <div class="rivi3">
+        <label class="k">Ala-aulat${numInput(base + '.alaAula', p.alaAula)}<span class="tulos" data-t="${base}.alaAula">${tulosTeksti(p.alaAula)}</span></label>
+        <label class="k">Hissit${numInput(base + '.hissit', p.hissit)}<span class="tulos" data-t="${base}.hissit">${tulosTeksti(p.hissit)}</span></label>
+        <label class="k">Tuulikaapit${numInput(base + '.tuulikaapit', p.tuulikaapit)}<span class="tulos" data-t="${base}.tuulikaapit">${tulosTeksti(p.tuulikaapit)}</span></label>
+      </div>
+      <div class="alaots">Askelmat ja tasanteet</div>
+      <div class="mut" style="margin-bottom:6px">m² / kerros × kerrokset. Lisää rivi, jos jokin kerros on erilainen (esim. 1. krs tai ylin kerros).</div>
+      ${p.portaat.map((x, xi) => `<div class="prow">${numInput(`${base}.portaat.${xi}.m2`, x.m2, 'm²/krs')}<span class="x">×</span>${numInput(`${base}.portaat.${xi}.krs`, x.krs, 'krs')}
+        <button class="i" data-a="poistaPorras" data-r="${ri}" data-p="${pi}" data-x="${xi}" title="Poista rivi" ${p.portaat.length < 2 ? 'disabled' : ''}>✕</button></div>`).join('')}
+      <button class="l" data-a="lisaaPorras" data-r="${ri}" data-p="${pi}">+ rivi</button>
+      <div class="tulos" data-yht="rappuPort:${ri}:${pi}" style="margin-top:6px">${L.krs ? `${fmt(L.port)} m² · ${fmt(L.krs, 0)} kerrosta` : ''}</div>
+      <label class="k" style="margin-top:10px">Huomiot<textarea data-s="${base}.huom" rows="2">${esc(p.huom)}</textarea></label>
+      <div class="napit"><button class="s" data-a="kopioiRappu" data-r="${ri}" data-p="${pi}">⧉ Kopioi rappu</button>
+        <button class="s" data-a="poistaRappu" data-r="${ri}" data-p="${pi}" ${r.raput.length < 2 ? 'disabled' : ''} style="color:var(--mulberry);border-color:var(--mulberry)">Poista rappu</button></div>
+    </div></details>`;
+}
+function renderSaunat(r, ri) {
+  return r.saunat.map((s, si) => { const b = `r.${ri}.saunat.${si}`; return `<div class="srow">
+      <div class="top"><input type="text" data-s="${b}.nimi" value="${esc(s.nimi)}" placeholder="Saunaosasto (esim. A-rappu kellari)">
+        <button class="i" data-a="poistaSauna" data-r="${ri}" data-x="${si}" title="Poista">✕</button></div>
+      <div class="rivi3">
+        <label class="k">Löylyhuone${numInput(b + '.loyly', s.loyly)}</label><label class="k">Pesuhuone${numInput(b + '.pesu', s.pesu)}</label>
+        <label class="k">Pukuhuone${numInput(b + '.puku', s.puku)}</label><label class="k">WC${numInput(b + '.wc', s.wc)}</label>
+        <label class="k">Lämmityspäivät / vko${numInput(b + '.lampoPv', s.lampoPv, 'pv')}</label>
+        <label class="k">Siivous<select data-s="${b}.tapa"><option value="viikko" ${s.tapa === 'viikko' ? 'selected' : ''}>viikkosiivous</option><option value="tark" ${s.tapa === 'tark' ? 'selected' : ''}>tarkastussiivous</option></select></label>
+      </div><div class="tulos" data-yht="sauna:${ri}:${si}">${fmt(saunaM2(s))} m²</div></div>`; }).join('');
+}
+function renderOsio(r, ri, k, nimi) {
+  const rows = r.tilat[k], sum = rows.reduce((a, x) => a + n(x.m2), 0);
+  return `<details class="osio" ${rows.length ? 'open' : ''}><summary><span class="nuoli">▸</span> ${nimi}<span class="yht" data-yht="osio:${ri}:${k}">${rows.length ? fmt(sum) + ' m²' : ''}</span></summary><div class="sis">
+    ${k === 'irtain' ? `<label class="k" style="margin-bottom:8px">Siivousmenetelmä<select data-s="r.${ri}.irtTapa"><option value="imu" ${r.irtTapa === 'imu' ? 'selected' : ''}>imurointi</option><option value="pyy" ${r.irtTapa === 'pyy' ? 'selected' : ''}>pyyhintä</option></select></label>` : ''}
+    ${rows.map((x, xi) => `<div class="trow"><input type="text" data-s="r.${ri}.tilat.${k}.${xi}.kuvaus" value="${esc(x.kuvaus)}" placeholder="Kuvaus / sijainti">
+      ${numInput(`r.${ri}.tilat.${k}.${xi}.m2`, x.m2)}<button class="i" data-a="poistaTila" data-r="${ri}" data-k="${k}" data-x="${xi}" title="Poista">✕</button></div>
+      <div class="tulos" data-t="r.${ri}.tilat.${k}.${xi}.m2" style="margin:-4px 52px 6px 0">${tulosTeksti(x.m2)}</div>`).join('')}
+    <button class="l" data-a="lisaaTila" data-r="${ri}" data-k="${k}">+ ${rows.length ? 'rivi' : 'lisää'}</button></div></details>`;
+}
+function renderRak() {
+  $('rakennukset').innerHTML = S.rakennukset.map((r, ri) => {
+    const L = rakLuvut(r);
+    return `<details class="rak" data-id="${r.id}" ${r._auki !== false ? 'open' : ''}>
+      <summary><span class="nuoli">▸</span> ${esc(r.nimi || 'Rakennus')}<span class="yht" data-yht="rak:${ri}">${L.raput} rappua · ${fmt(L.yht, 0)} m²</span></summary>
+      <div class="rakSisus">
+        <div class="kentat">
+          <label class="k">Rakennuksen nimi<input type="text" data-s="r.${ri}.nimi" value="${esc(r.nimi)}"></label>
+          <label class="k">Tyyppi<select data-s="r.${ri}.tyyppi">${TYYPIT.map(([v, t]) => `<option value="${v}" ${v === r.tyyppi ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+        </div>
+        <div class="alaots" style="margin-top:14px">Rapput (${r.raput.length})</div>
+        ${r.raput.map((p, pi) => renderRappu(r, ri, p, pi)).join('')}
+        <button class="l" data-a="lisaaRappu" data-r="${ri}">+ Lisää rappu</button>
+        <div class="alaots" style="margin-top:18px">Rakennuksen yhteiset tilat</div>
+        <details class="osio" ${r.saunat.length ? 'open' : ''}><summary><span class="nuoli">▸</span> Saunaosastot<span class="yht" data-yht="saunat:${ri}">${r.saunat.length ? `${r.saunat.length} kpl · ${fmt(L.sauna)} m²` : ''}</span></summary>
+          <div class="sis">${renderSaunat(r, ri)}<button class="l" data-a="lisaaSauna" data-r="${ri}">+ saunaosasto</button></div></details>
+        ${OSIOT.map(([k, nm]) => renderOsio(r, ri, k, nm)).join('')}
+        <label class="k" style="margin-top:10px">Muuta huomioitavaa (esim. roskakatokset, autohallin käytävät, kulkureitit)<textarea data-s="r.${ri}.muuta" rows="2">${esc(r.muuta)}</textarea></label>
+        <div class="napit"><button class="s" data-a="kopioiRak" data-r="${ri}">⧉ Kopioi rakennus</button>
+          <button class="s" data-a="poistaRak" data-r="${ri}" ${S.rakennukset.length < 2 ? 'disabled' : ''} style="color:var(--mulberry);border-color:var(--mulberry)">Poista rakennus</button></div>
+      </div></details>`;
+  }).join('');
+}
+function renderYhteenveto() {
+  const rows = S.rakennukset.map(r => ({ r, L: rakLuvut(r), m: mitoitusKohde(r) }));
+  const T = k => rows.reduce((a, x) => a + x.L[k], 0);
+  $('yhteenveto').innerHTML = `<div style="overflow-x:auto"><table class="yv"><tr><th>Rakennus</th><th class="n">Rapput</th><th class="n">Krs</th><th class="n">Aulat m²</th><th class="n">Portaat m²</th><th class="n">Saunat</th><th class="n">Muut m²</th><th class="n">Yht. m²</th></tr>
+    ${rows.map(({ r, L, m }) => `<tr><td>${esc(r.nimi)}</td><td class="n">${L.raput}</td><td class="n">${m.kerrokset}</td><td class="n">${fmt(L.aula)}</td><td class="n">${fmt(L.port)}</td>
+      <td class="n">${r.saunat.length ? `${r.saunat.length} kpl ${fmt(L.sauna, 0)} m²` : '–'}</td><td class="n">${fmt(L.muut)}</td><td class="n"><b>${fmt(L.yht)}</b></td></tr>`).join('')}
+    ${rows.length > 1 ? `<tr><td><b>Yhteensä</b></td><td class="n"><b>${T('raput')}</b></td><td></td><td class="n"><b>${fmt(T('aula'))}</b></td><td class="n"><b>${fmt(T('port'))}</b></td><td class="n"><b>${fmt(T('sauna'), 0)}</b></td><td class="n"><b>${fmt(T('muut'))}</b></td><td class="n"><b>${fmt(T('yht'))}</b></td></tr>` : ''}
+    </table></div>`;
+  const v = varoitukset();
+  $('varoitukset').innerHTML = v.map(x => `<div class="varo">${x}</div>`).join('');
+  const Lt = { raput: T('raput'), yht: T('yht') };
+  $('palkki').innerHTML = `<b>${fmt(Lt.yht)} m²</b><br>${S.rakennukset.length} rak. · ${Lt.raput} rappua${v.length ? ` · <span style="color:var(--asteri)">⚠ ${v.length}</span>` : ''}`;
+}
+function varoitukset() {
+  const v = [];
+  S.rakennukset.forEach(r => {
+    const tunn = {};
+    r.raput.forEach(p => { const L = rappuLuvut(p), nm = `${esc(r.nimi)} / rappu ${esc(p.tunnus || '?')}`;
+      tunn[p.tunnus] = (tunn[p.tunnus] || 0) + 1;
+      if (!L.aula && !L.port) v.push(`${nm}: ei pinta-aloja.`);
+      else if (!L.krs) v.push(`${nm}: askelmien ja tasanteiden kerrosmäärä puuttuu.`);
+      p.portaat.forEach(x => { if (n(x.m2) && !n(x.krs)) v.push(`${nm}: portaiden m²/krs ${fmt(n(x.m2))} ilman kerrosmäärää.`); });
+    });
+    Object.entries(tunn).forEach(([t, c]) => { if (c > 1) v.push(`${esc(r.nimi)}: rappu "${esc(t || '?')}" on kahdesti.`); });
+    const L = rakLuvut(r), krs = r.raput.map(p => rappuLuvut(p).krs).filter(x => x);
+    if (krs.length > 1 && Math.max(...krs) !== Math.min(...krs)) v.push(`${esc(r.nimi)}: rapuissa eri kerrosmäärä (${krs.join(', ')}). Porrasmitoitukseen viedään keskiarvo ${mitoitusKohde(r).kerrokset} krs; portaiden kokonaisala säilyy.`);
+  });
+  document.querySelectorAll('input.num').forEach(el => { if (el.classList.contains('virhe')) v.push('Tarkista punaiset kentät: laskutoimitusta ei voitu laskea.'); });
+  return [...new Set(v)];
+}
+function renderKaikki() {
+  document.querySelectorAll('[data-p]').forEach(el => { el.value = S[el.dataset.p] || ''; });
+  renderRak(); merkitseVirheet(); renderYhteenveto();
+}
+function merkitseVirheet() { document.querySelectorAll('input.num').forEach(el => el.classList.toggle('virhe', !!el.value.trim() && isNaN(laske(el.value)))); }
+
+// ---------- polut ----------
+function aseta(path, val) {
+  const o = path.split('.'); let t = S.rakennukset; o.shift();
+  for (let i = 0; i < o.length - 1; i++) t = t[o[i]];
+  t[o[o.length - 1]] = val;
+}
+function paivitaLuvut() {
+  S.rakennukset.forEach((r, ri) => {
+    const L = rakLuvut(r), set = (k, t) => { const el = document.querySelector(`[data-yht="${k}"]`); if (el) el.textContent = t; };
+    set(`rak:${ri}`, `${L.raput} rappua · ${fmt(L.yht, 0)} m²`);
+    set(`saunat:${ri}`, r.saunat.length ? `${r.saunat.length} kpl · ${fmt(L.sauna)} m²` : '');
+    r.raput.forEach((p, pi) => { const R = rappuLuvut(p); set(`rappu:${ri}:${pi}`, `${fmt(R.aula + R.port)} m²`); set(`rappuPort:${ri}:${pi}`, R.krs ? `${fmt(R.port)} m² · ${fmt(R.krs, 0)} kerrosta` : ''); });
+    r.saunat.forEach((s, si) => set(`sauna:${ri}:${si}`, `${fmt(saunaM2(s))} m²`));
+    OSIOT.forEach(([k]) => set(`osio:${ri}:${k}`, r.tilat[k].length ? fmt(L.o[k]) + ' m²' : ''));
+  });
+  renderYhteenveto();
+}
+
+// ---------- tapahtumat ----------
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.p) { S[el.dataset.p] = el.value; tallennaLuonnos(); return; }
+  if (el.dataset.n) { aseta(el.dataset.n, el.value); el.classList.toggle('virhe', !!el.value.trim() && isNaN(laske(el.value)));
+    const t = document.querySelector(`[data-t="${el.dataset.n}"]`); if (t) t.textContent = tulosTeksti(el.value); paivitaLuvut(); tallennaLuonnos(); return; }
+  if (el.dataset.s) { aseta(el.dataset.s, el.value); tallennaLuonnos();
+    if (/\.(tunnus|nimi)$/.test(el.dataset.s) && !/saunat|tilat/.test(el.dataset.s)) { const sm = el.closest('details').querySelector(':scope>summary'); if (sm && /\.tunnus$/.test(el.dataset.s)) sm.querySelector('b').textContent = el.value || '?'; if (sm && /^r\.\d+\.nimi$/.test(el.dataset.s)) sm.childNodes[1].textContent = ' ' + (el.value || 'Rakennus'); }
+    paivitaLuvut(); }
+});
+document.addEventListener('change', e => { if (e.target.tagName === 'SELECT' && e.target.dataset.s) { aseta(e.target.dataset.s, e.target.value); tallennaLuonnos(); paivitaLuvut(); } });
+document.addEventListener('toggle', e => { const d = e.target; if (!(d instanceof HTMLDetailsElement)) return;
+  const id = d.dataset.id; if (!id) return; S.rakennukset.forEach(r => { if (r.id === id) r._auki = d.open; r.raput.forEach(p => { if (p.id === id) p._auki = d.open; }); }); }, true);
+function kopio(o) { return JSON.parse(JSON.stringify(o)); }
+function seuraavaTunnus(r) { const t = r.raput.map(p => p.tunnus).filter(x => /^[A-ZÅÄÖ]$/.test(x)).sort().pop(); return t ? String.fromCharCode(t.charCodeAt(0) + 1) : String.fromCharCode(65 + r.raput.length); }
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  const a = b.dataset.a, r = S.rakennukset[+b.dataset.r], pi = +b.dataset.p, xi = +b.dataset.x;
+  if (a === 'lisaaRappu') { r.raput.forEach(p => p._auki = false); r.raput.push(uusiRappu(seuraavaTunnus(r))); }
+  if (a === 'kopioiRappu') { const c = kopio(r.raput[pi]); c.id = uid(); c.tunnus = seuraavaTunnus(r); c._auki = true; r.raput.forEach(p => p._auki = false); r.raput.splice(pi + 1, 0, c); }
+  if (a === 'poistaRappu') { if (!(await vahvista(`Poistetaanko rappu ${r.raput[pi].tunnus || ''}?`))) return; r.raput.splice(pi, 1); }
+  if (a === 'lisaaPorras') r.raput[pi].portaat.push({ m2: '', krs: '' });
+  if (a === 'poistaPorras') r.raput[pi].portaat.splice(xi, 1);
+  if (a === 'lisaaSauna') r.saunat.push(uusiSauna());
+  if (a === 'poistaSauna') r.saunat.splice(xi, 1);
+  if (a === 'lisaaTila') r.tilat[b.dataset.k].push({ id: uid(), kuvaus: '', m2: '' });
+  if (a === 'poistaTila') r.tilat[b.dataset.k].splice(xi, 1);
+  if (a === 'kopioiRak') { const c = kopio(r); c.id = uid(); c.nimi = (r.nimi || 'Rakennus') + ' (kopio)'; c.raput.forEach(p => p.id = uid()); S.rakennukset.forEach(x => x._auki = false); S.rakennukset.splice(+b.dataset.r + 1, 0, c); }
+  if (a === 'poistaRak') { if (!(await vahvista(`Poistetaanko ${r.nimi || 'rakennus'} kaikkine rappuineen?`))) return; S.rakennukset.splice(+b.dataset.r, 1); }
+  renderRak(); merkitseVirheet(); renderYhteenveto(); tallennaLuonnos();
+  if (/^(lisaa|kopioi)(Rappu|Rak)$/.test(a)) { const all = document.querySelectorAll(a.endsWith('Rak') ? 'details.rak' : `details.rak[data-id="${r.id}"] details.rappu`);
+    const t = a === 'lisaaRappu' ? all[all.length - 1] : a === 'kopioiRappu' ? all[pi + 1] : a === 'kopioiRak' ? all[+b.dataset.r + 1] : null; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
+});
+$('lisaaRak').onclick = () => { S.rakennukset.forEach(x => x._auki = false); S.rakennukset.push(uusiRak(S.rakennukset.length + 1)); renderRak(); renderYhteenveto(); tallennaLuonnos();
+  const all = document.querySelectorAll('details.rak'); all[all.length - 1].scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+
+// ---------- dialogi ----------
+function dialogi(ots, teksti, napit) {
+  return new Promise(res => { const d = $('dlg'); $('dlgOts').textContent = ots; $('dlgTeksti').innerHTML = teksti;
+    $('dlgNapit').innerHTML = napit.map((x, i) => `<button class="${i === 0 ? 'p' : 's'}" data-i="${i}">${x}</button>`).join('');
+    $('dlgNapit').onclick = e => { const i = e.target.dataset.i; if (i == null) return; d.close(); res(+i); };
+    d.onclose = () => res(-1); if (d.showModal) d.showModal(); else res(confirm(teksti.replace(/<[^>]+>/g, '')) ? 0 : 1); });
+}
+const vahvista = async t => (await dialogi('Vahvista', esc(t), ['Poista', 'Peruuta'])) === 0;
+
+// ---------- tallennus / jako ----------
+function nimiOsa() { return ((S.asiakas || S.kohde || 'kartoitus') + '').replace(/[^A-Za-z0-9_\-åäöÅÄÖ]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').slice(0, 40) || 'kartoitus'; }
+async function jaaTaiLataa(obj, fname) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  try { const f = new File([blob], fname, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [f] }) && /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) { await navigator.share({ files: [f], title: fname }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+}
+function mitoitusTiedosto() {
+  return { tyokalu: 'LuoteaPorras', build: 'Porraskartoitus ' + BUILD, lahde: TYOKALU, tallennettu: new Date().toISOString(),
+    asiakas: [S.asiakas, S.kohde].filter(Boolean).join(' / '), laatija: S.laatija, pvm: /^\d{4}-\d{2}-\d{2}$/.test(S.pvm) ? S.pvm : tanaan(),
+    kohteet: S.rakennukset.map(mitoitusKohde),
+    kartoitus: { kohde: S.kohde, osoite: S.osoite, rakennukset: S.rakennukset.map(r => ({ nimi: r.nimi, muuta: r.muuta, saunat: r.saunat.map(s => ({ nimi: s.nimi, lampoPv: n(s.lampoPv), tapa: s.tapa, m2: saunaM2(s) })) })) } };
+}
+async function vieMitoitukseen() {
+  const v = varoitukset();
+  if (v.length && (await dialogi('Tarkista ennen vientiä', v.map(x => `<div class="varo">${x}</div>`).join(''), ['Vie silti', 'Takaisin'])) !== 0) return;
+  await jaaTaiLataa(mitoitusTiedosto(), `LuoteaPorras_${nimiOsa()}_${tanaan()}.json`);
+}
+$('vieMitoitus').onclick = vieMitoitukseen; $('palkkiVie').onclick = vieMitoitukseen;
+$('tallennaJson').onclick = () => jaaTaiLataa({ tyokalu: TYOKALU, build: BUILD, tallennettu: new Date().toISOString(), kartoitus: S }, `Porraskartoitus_${nimiOsa()}_${tanaan()}.json`);
+$('avaaJson').onclick = () => $('avaaInput').click();
+$('avaaInput').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const d = JSON.parse(await f.text()); if (d.tyokalu !== TYOKALU || !d.kartoitus) throw new Error('Tiedosto ei ole porraskartoitus.'); S = normalisoi(d.kartoitus); renderKaikki(); tallennaLuonnos(); }
+  catch (err) { dialogi('Avaus epäonnistui', esc(err.message || String(err)), ['OK']); }
+  e.target.value = '';
+};
+$('uusi').onclick = async () => { if ((await dialogi('Uusi kartoitus', 'Tyhjennetäänkö lomake? Tallenna nykyinen kartoitus ensin, jos tarvitset sitä.', ['Tyhjennä', 'Peruuta'])) !== 0) return;
+  S = uusiTila(); renderKaikki(); tallennaLuonnos(); window.scrollTo(0, 0); };
+
+// ---------- tuloste (A4) ----------
+$('tulosta').onclick = () => {
+  const t = x => esc(x || ''), rows = S.rakennukset;
+  $('tuloste').innerHTML = `<h1>Porraskohteen tilakartoitus</h1>
+    <table><tr><th>Asiakas</th><td>${t(S.asiakas)}</td><th>Kohde</th><td>${t(S.kohde)}</td></tr><tr><th>Osoite</th><td>${t(S.osoite)}</td><th>Pvm / laatinut</th><td>${t(S.pvm)} · ${t(S.laatija)}</td></tr></table>
+    ${rows.map(r => { const L = rakLuvut(r), m = mitoitusKohde(r); return `<div class="rakTulostus"><h2>${t(r.nimi)} (${t((TYYPIT.find(x => x[0] === r.tyyppi) || [])[1])})</h2>
+      <table><tr><th>Rappu</th><th>Ala-aulat</th><th>Hissit</th><th>Tuulikaapit</th><th>Askelmat ja tasanteet</th><th>Kerr.</th><th>Portaat m²</th><th>Yht. m²</th></tr>
+      ${r.raput.map(p => { const R = rappuLuvut(p); return `<tr><td>${t(p.tunnus)}</td><td class="n">${fmt(n(p.alaAula))}</td><td class="n">${fmt(n(p.hissit))}</td><td class="n">${fmt(n(p.tuulikaapit))}</td>
+        <td>${p.portaat.filter(x => n(x.m2) || n(x.krs)).map(x => `${fmt(n(x.m2))} × ${fmt(n(x.krs), 0)}`).join('; ')}</td><td class="n">${fmt(R.krs, 0)}</td><td class="n">${fmt(R.port)}</td><td class="n">${fmt(R.aula + R.port)}</td></tr>`; }).join('')}
+      <tr><th>Yht.</th><th colspan="5">${L.raput} rappua</th><th class="n">${fmt(L.port)}</th><th class="n">${fmt(L.aula + L.port)}</th></tr></table>
+      ${r.saunat.length ? `<table><tr><th>Saunaosasto</th><th>Löyly</th><th>Pesu</th><th>Puku</th><th>WC</th><th>Yht. m²</th><th>Lämm.pv/vko</th><th>Siivous</th></tr>
+        ${r.saunat.map(s => `<tr><td>${t(s.nimi)}</td><td class="n">${fmt(n(s.loyly))}</td><td class="n">${fmt(n(s.pesu))}</td><td class="n">${fmt(n(s.puku))}</td><td class="n">${fmt(n(s.wc))}</td><td class="n">${fmt(saunaM2(s))}</td><td class="n">${fmt(n(s.lampoPv), 0)}</td><td>${s.tapa === 'tark' ? 'tarkastus' : 'viikko'}</td></tr>`).join('')}</table>` : ''}
+      ${OSIOT.filter(([k]) => r.tilat[k].length).map(([k, nm]) => `<table><tr><th colspan="2">${nm}${k === 'irtain' ? ` (${r.irtTapa === 'pyy' ? 'pyyhintä' : 'imurointi'})` : ''}</th></tr>
+        ${r.tilat[k].map(x => `<tr><td>${t(x.kuvaus)}</td><td class="n" style="width:90px">${fmt(n(x.m2))}</td></tr>`).join('')}<tr><th>Yhteensä</th><th class="n">${fmt(L.o[k])}</th></tr></table>`).join('')}
+      ${r.muuta ? `<table><tr><th>Muuta</th><td>${t(r.muuta)}</td></tr></table>` : ''}
+      <table><tr><th colspan="6">Porrasmitoitukseen</th></tr><tr><td>Rapput ${m.raput}</td><td>Kerroksia ${m.kerrokset}</td><td>m²/rappu ${fmt(m.m2PerRappu, 2)}</td><td>m²/krs ${fmt(m.m2PerKerros, 2)}</td><td>Saunat ${m.saunaViikko.kpl}+${m.saunaTark.kpl}</td><td>Yht. ${fmt(L.yht)} m²</td></tr></table></div>`; }).join('')}
+    <p style="font-size:9px;color:#666">Luotea Porraskartoitus ${BUILD} · tulostettu ${new Date().toLocaleString('fi-FI')}</p>`;
+  window.print();
+};
+
+// ---------- PWA: offline + verkkotila ----------
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+const verkko = () => { $('verkko').textContent = navigator.onLine ? '' : 'ei verkkoa – toimii silti'; };
+window.addEventListener('online', verkko); window.addEventListener('offline', verkko); verkko();
+renderKaikki();
+window.__PK = { tila: () => S, mitoitusTiedosto, laske, rakLuvut };
+})();
+</script>
+</body>
+</html>
