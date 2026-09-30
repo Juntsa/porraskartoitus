@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F4B4B">
+<link rel="icon" href="icons/icon-192.png">
+<title>Porraskartoitus – ohje</title>
+<style>
+:root{--havu:#0F4B4B;--havu-dk:#093838;--kalkki:#E6DCD2;--kalkki-lt:#F5F0EA;--luumu:#371E30;--hiili:#1F1F1F;--celadon:#96E6AA;--mulberry:#AA4678;--mut:#5A4655;--raja:#D9CFC4}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:16px;line-height:1.5;color:var(--hiili);background:var(--kalkki-lt)}
+header{background:var(--havu);color:#fff;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:2}
+header a{color:var(--celadon);text-decoration:none;font-weight:700;font-size:15px}
+header h1{font-size:18px;margin:0}
+main{max-width:720px;margin:0 auto;padding:12px 14px 40px}
+section{background:#fff;border:1px solid var(--raja);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+h2{font-size:17px;color:var(--havu);margin:0 0 8px}
+h3{font-size:15px;margin:12px 0 4px;color:var(--luumu)}
+ol,ul{padding-left:22px;margin:6px 0}
+li{margin:4px 0}
+.huom{background:#FBEFF4;border-left:4px solid var(--mulberry);padding:8px 11px;border-radius:8px;margin:10px 0;font-size:15px}
+.vinkki{background:#EAF3F1;border-left:4px solid var(--havu);padding:8px 11px;border-radius:8px;margin:10px 0;font-size:15px}
+b.nappi{display:inline-block;background:var(--kalkki);border-radius:6px;padding:0 6px;font-weight:600;white-space:nowrap}
+code{background:var(--kalkki);border-radius:5px;padding:1px 5px;font-size:15px}
+.toc a{color:var(--havu);font-weight:600}
+</style>
+</head>
+<body>
+<header><a href="./">‹ Lomake</a><h1>Ohje</h1></header>
+<main>
+  <section class="toc">
+    <h2>Pikaohje</h2>
+    <ol>
+      <li><a href="#asennus">Asenna kotinäytölle</a> kerran, niin lomake toimii myös kellarissa ilman kenttää.</li>
+      <li><a href="#kartoitus">Täytä kohde, rakennukset ja raput</a>. Mittoihin voi kirjoittaa laskun, esim. <code>4,2*3,1</code>.</li>
+      <li><a href="#tallennus">Tallenna kartoitus</a> puhelimeen tai OneDriveen aina työn päätteeksi.</li>
+      <li><a href="#vienti">Vie Porrasmitoitukseen</a> ja avaa tiedosto koneella.</li>
+    </ol>
+  </section>
+
+  <section id="asennus">
+    <h2>1. Asennus kotinäytölle</h2>
+    <h3>iPhone</h3>
+    <ol><li>Avaa <b>juntsa.github.io/porraskartoitus</b> <b>Safarissa</b>.</li><li>Paina Jaa-painiketta (neliö ja nuoli ylös).</li><li>Valitse <b class="nappi">Lisää Koti-valikkoon</b> → <b class="nappi">Lisää</b>.</li></ol>
+    <h3>Android</h3>
+    <ol><li>Avaa osoite <b>Chromessa</b>.</li><li>Paina ⋮-valikkoa oikeasta yläkulmasta.</li><li>Valitse <b class="nappi">Asenna sovellus</b> tai <b class="nappi">Lisää aloitusnäytölle</b>.</li></ol>
+    <div class="vinkki">Avaa lomake kotinäytön kuvakkeesta kerran verkossa. Sen jälkeen se aukeaa myös ilman verkkoa, ja yläkulmassa lukee silloin <i>"ei verkkoa – toimii silti"</i>.</div>
+  </section>
+
+  <section id="kartoitus">
+    <h2>2. Kartoituksen teko</h2>
+    <ul>
+      <li><b>Kohde:</b> asiakas, kohde, osoite, laatija ja päivämäärä.</li>
+      <li><b>Rakennus:</b> nimi ja tyyppi. Lisää rakennuksia napista <b class="nappi">+ Lisää rakennus</b>.</li>
+      <li><b>Rappu:</b> ala-aulat, hissit ja tuulikaapit (m²) sekä askelmat ja tasanteet muodossa <i>m²/kerros × kerrokset</i>. Lisää rivi <b class="nappi">+ rivi</b>, jos jokin kerros on erilainen, esim. 1. kerros.</li>
+      <li><b class="nappi">⧉ Kopioi rappu</b> tekee samanlaisesta rapusta kopion ja vaihtaa tunnuksen (A → B → C). Muuta vain erot.</li>
+      <li><b>Yhteiset tilat</b> (saunat, pesulat, varastot, kellarikäytävät jne.) kirjataan rakennukselle. Avaa osio napauttamalla sen otsikkoa.</li>
+    </ul>
+    <h3>Mittalaskin</h3>
+    <p>Mittakenttään voi kirjoittaa suoraan laskun, ja tulos näkyy kentän alla:</p>
+    <ul><li><code>4,2*3,1</code> tai <code>4,2x3,1</code> → 13,02 m²</li><li><code>2,1x1,5+3</code> → 6,15 m²</li><li><code>(3,2+1,8)*2,4</code> → 12,00 m²</li></ul>
+    <p>Punainen kenttä tarkoittaa, että laskua ei voitu laskea. Tarkista merkit.</p>
+    <p>Alapalkissa näkyvät koko kartoituksen neliöt ja varoitusten määrä (⚠). Varoitukset löytyvät sivun lopusta kohdasta <i>Yhteenveto</i>.</p>
+  </section>
+
+  <section id="tallennus">
+    <h2>3. Tallennus</h2>
+    <h3>Luonnos tallentuu automaattisesti</h3>
+    <p>Kaikki mitä kirjoitat, tallentuu puhelimeen heti. Voit sulkea lomakkeen ja jatkaa myöhemmin samasta kohdasta. Yläkulmassa näkyy <i>"luonnos tallennettu klo …"</i>.</p>
+    <div class="huom"><b>Luonnoksia on vain yksi.</b> <b class="nappi">Uusi kartoitus</b> tyhjentää lomakkeen, ja luonnos voi hävitä, jos selaimen tiedot tyhjennetään. Tallenna siksi kartoitus tiedostoksi aina, kun kohde on valmis.</div>
+    <h3>Tallenna kartoitus tiedostoksi</h3>
+    <ol>
+      <li>Paina sivun lopusta <b class="nappi">💾 Tallenna kartoitus</b>.</li>
+      <li>Puhelimeen aukeaa jakovalikko:
+        <ul><li><b>iPhone:</b> <b class="nappi">Tallenna Tiedostoihin</b> → valitse <i>OneDrive</i> tai <i>iPhonessa</i> → <b class="nappi">Tallenna</b>.</li>
+            <li><b>Android:</b> valitse <i>OneDrive</i>, <i>Drive</i> tai <i>Lähetä sähköpostilla</i>. Jos valikkoa ei tule, tiedosto menee <i>Lataukset</i>-kansioon.</li></ul></li>
+    </ol>
+    <p>Tiedoston nimi on <code>Porraskartoitus_&lt;asiakas&gt;_&lt;pvm&gt;.json</code>.</p>
+    <h3>Jatka tallennettua kartoitusta</h3>
+    <p>Paina <b class="nappi">📂 Avaa kartoitus</b> ja valitse tiedosto Tiedostoista, OneDrivesta tai Latauksista. Samalla tavalla kartoituksen voi siirtää puhelimesta koneelle tai toiselle mitoittajalle.</p>
+  </section>
+
+  <section id="vienti">
+    <h2>4. Vienti Porrasmitoitukseen</h2>
+    <ol>
+      <li>Tarkista <i>Yhteenveto</i>-osion varoitukset.</li>
+      <li>Paina <b class="nappi">⬇ Vie Porrasmitoitukseen</b> (tai <b class="nappi">Vie ⬇</b> alapalkista).</li>
+      <li>Lähetä tiedosto <code>LuoteaPorras_….json</code> itsellesi sähköpostilla, Teamsilla tai OneDriveen.</li>
+      <li>Avaa koneella <b>Luotea Porrasmitoitus</b> → välilehti <b>⑥ Tallenna / Tulosta</b> → <b class="nappi">Avaa laskelma</b> → valitse tiedosto.</li>
+    </ol>
+    <p>Jokaisesta rakennuksesta tulee Porrasmitoitukseen oma kohde. Jos rapuissa on eri määrä kerroksia, viedään keskiarvo, mutta portaiden kokonaisala pysyy tarkkana.</p>
+    <div class="vinkki"><b>Vie Porrasmitoitukseen</b> on laskentaa varten. <b>Tallenna kartoitus</b> on kartoituksen oma tallennus, joka säilyttää kaikki rivit, rapun huomiot ja saunojen lämmityspäivät. Ota molemmat talteen.</div>
+  </section>
+
+  <section>
+    <h2>5. Tulostus / PDF</h2>
+    <p>Paina <b class="nappi">🖨 Tulosta / PDF</b>. Saat A4-yhteenvedon rakennuksittain ja rapuittain.</p>
+    <ul><li><b>iPhone:</b> tulostusnäkymässä Jaa-painike → <i>Tallenna Tiedostoihin</i>, niin saat PDF:n.</li><li><b>Android:</b> valitse tulostimeksi <i>Tallenna PDF-muodossa</i>.</li></ul>
+  </section>
+
+  <section>
+    <h2>Hyvä tietää</h2>
+    <ul>
+      <li><b>Tiedot pysyvät omalla laitteella.</b> Lomake ei lähetä mitään palvelimelle. Tiedot liikkuvat vain, kun tallennat tai jaat tiedoston itse.</li>
+      <li><b>Päivitykset</b> tulevat automaattisesti, kun lomake avataan verkossa. Build-numero näkyy oikeassa yläkulmassa.</li>
+      <li><b>Iso kohde:</b> sulje valmiit raput ja rakennukset napauttamalla otsikkoa, niin lomake pysyy lyhyenä.</li>
+      <li><b>Ongelma tai kehitysidea:</b> kerro Kari Juntuselle (Mitoitus KIPA).</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

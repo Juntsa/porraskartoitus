@@ -18,6 +18,7 @@
   mittalaskin kenttiin (esim. 4,2*3,1), luonnos säilyy laitteella, vienti suoraan Porrasmitoitukseen.
   (260930.1) Build 1.
   (260930.2) Build 2: PWA (asennus kotinäytölle, toimii ilman verkkoa), verkkotilan ilmaisin.
+  (260930.3) Build 3: käyttöohje (ohje.html), linkki otsikossa, ohje toimii myös offline.
 -->
 <style>
 :root{--havu:#0F4B4B;--havu-dk:#093838;--asteri:#EBB9FF;--kalkki:#E6DCD2;--kalkki-lt:#F5F0EA;--kalkki-md:#EFE7DD;--luumu:#371E30;--hiili:#1F1F1F;
@@ -104,7 +105,8 @@ dialog .napit{flex-direction:column}
 <body>
 <header>
   <div><h1>Porraskartoitus</h1><div class="ala">Luotea · porraskohteen tilakartoitus</div></div>
-  <div class="build">build 260930.2<div class="tallennettu" id="tallennettu"></div><div class="tallennettu" id="verkko"></div></div>
+  <a href="ohje.html" style="color:var(--celadon);font-weight:700;text-decoration:none;font-size:14px;margin-left:auto;padding:8px 4px">Ohje</a>
+  <div class="build" style="margin-left:8px">build 260930.3<div class="tallennettu" id="tallennettu"></div><div class="tallennettu" id="verkko"></div></div>
 </header>
 <main>
   <section class="kortti">
@@ -116,7 +118,7 @@ dialog .napit{flex-direction:column}
       <label class="k">Laatinut<input type="text" data-p="laatija" autocomplete="name"></label>
       <label class="k">Pvm<input type="date" data-p="pvm"></label>
     </div>
-    <div class="info">Mittakentät hyväksyvät laskutoimituksen: kirjoita esim. <b>4,2*3,1</b> tai <b>2,1x1,5+3</b>, niin tulos lasketaan. Luonnos tallentuu tälle laitteelle automaattisesti.</div>
+    <div class="info">Uusi käyttäjä? Lue <a href="ohje.html" style="color:var(--havu);font-weight:700">ohje</a> (asennus, tallennus puhelimeen, vienti). Mittakentät hyväksyvät laskutoimituksen: kirjoita esim. <b>4,2*3,1</b> tai <b>2,1x1,5+3</b>, niin tulos lasketaan. Luonnos tallentuu tälle laitteelle automaattisesti.</div>
   </section>
 
   <div id="rakennukset"></div>
@@ -151,7 +153,7 @@ dialog .napit{flex-direction:column}
 <script>
 (() => {
 'use strict';
-const BUILD = '260930.2', TYOKALU = 'LuoteaPorraskartoitus', LUONNOS = 'luotea_porraskartoitus_luonnos_v1';
+const BUILD = '260930.3', TYOKALU = 'LuoteaPorraskartoitus', LUONNOS = 'luotea_porraskartoitus_luonnos_v1';
 const TYYPIT = [['kt', 'Kerrostalo'], ['pkt', 'Pienkerrostalo'], ['luhtitalo', 'Luhtitalo'], ['rt', 'Rivitalo']];
 const OSIOT = [
   ['pesula', 'Pesulat, kuivaushuoneet, mankelit'], ['varasto', 'Ulkoiluväline- ja lastenvaunuvarastot'], ['kellari', 'Kellarikäytävät'],

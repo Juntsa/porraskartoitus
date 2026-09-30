@@ -4,6 +4,8 @@ Porraskohteen tilakartoitus kentällä puhelimella, tabletilla tai koneella. Kor
 
 **Käyttö:** avaa sivu puhelimessa ja valitse selaimen valikosta *Lisää kotinäytölle*. Sovellus toimii sen jälkeen myös ilman verkkoa (kellarit, porraskäytävät).
 
+Käyttöohje: [ohje.html](https://juntsa.github.io/porraskartoitus/ohje.html) (asennus, tallennus puhelimeen, vienti).
+
 ## Mitä lomakkeella kerätään
 
 - Useita rakennuksia, ja jokaisella rakennuksella useita rappuja (*Kopioi rappu* samanlaisille rapuille)
